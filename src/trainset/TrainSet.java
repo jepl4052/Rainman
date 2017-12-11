@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Created by Luecx on 09.08.2017.
- */
+
 public class TrainSet {
 
     public final int INPUT_SIZE;
@@ -40,25 +38,6 @@ public class TrainSet {
             return set;
         }else return this;
     }
-
-    /*public static void main(String[] args) {
-        TrainSet set = new TrainSet(3,2);
-
-        for(int i = 0; i < 8; i++) {
-            double[] a = new double[3];
-            double[] b = new double[2];
-            for(int k = 0; k < 3; k++) {
-                a[k] = (double)((int)(Math.random() * 10)) / (double)10;
-                if(k < 2) {
-                    b[k] = (double)((int)(Math.random() * 10)) / (double)10;
-                }
-            }
-            set.addData(a,b);
-        }
-
-        System.out.println(set);
-        System.out.println(set.extractBatch(3));
-    } */
 
     public String toString() {
         String s = "TrainSet ["+INPUT_SIZE+ " ; "+OUTPUT_SIZE+"]\n";

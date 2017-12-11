@@ -51,9 +51,5 @@ public class ParserTools {
 		}
 		return res;
 	}
-
-	
-	
-	
 	
 }

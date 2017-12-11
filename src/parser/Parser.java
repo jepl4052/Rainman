@@ -5,9 +5,7 @@ import java.io.FileReader;
 import java.io.PrintWriter;
 
 public class Parser {
-	
 
-	
 	private Node mainContent;
 	private String fileName;
 	
@@ -93,6 +91,4 @@ public class Parser {
 		}
 		out.close();
 	}
-	
-	
 }

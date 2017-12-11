@@ -1,20 +1,14 @@
 package fullyconnectednetwork;
 
-import mnist.Mnist;
 import parser.Attribute;
 import parser.Node;
 import parser.Parser;
 import parser.ParserTools;
 import trainset.TrainSet;
-
-import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import static java.lang.Math.max;
 
-/**
- * Created by Luecx on 30.05.2017.
- */
 public class Network{
 
     private double[][] output;
@@ -72,7 +66,6 @@ public class Network{
         }
         return output[NETWORK_SIZE-1];
     }
-
 
     private void train(double[] input, double[] target, double eta) {
         if(input.length != INPUT_SIZE || target.length != OUTPUT_SIZE) return;
@@ -144,9 +137,9 @@ public class Network{
         return 1 / (1 + Math.exp(-x));
     }
 
-    private double relu(double x) {
+    /* private double relu(double x) {
         return max(x, 0.0);
-    }
+    } */
 
     private double[] inputNormalization(double... input) {
         if(input.length != this.INPUT_SIZE) return null;
@@ -254,5 +247,4 @@ public class Network{
             return ne;
 
     }
-
 }
