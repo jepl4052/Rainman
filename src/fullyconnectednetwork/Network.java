@@ -1,11 +1,13 @@
 package fullyconnectednetwork;
 
+import mnist.Mnist;
 import parser.Attribute;
 import parser.Node;
 import parser.Parser;
 import parser.ParserTools;
 import trainset.TrainSet;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import static java.lang.Math.max;
@@ -45,7 +47,7 @@ public class Network{
             this.error_signal[i] = new double[NETWORK_LAYER_SIZES[i]];
             this.output_derivative[i] = new double[NETWORK_LAYER_SIZES[i]];
 
-            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], -0.5,0.7);
+            this.bias[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i], -1,1);
 
             if(i > 0) {
                 weights[i] = NetworkTools.createRandomArray(NETWORK_LAYER_SIZES[i],NETWORK_LAYER_SIZES[i-1], -1,1);
@@ -53,7 +55,7 @@ public class Network{
         }
     }
 
-    private double[] calculate(double... input) {
+    public double[] calculate(double... input) {
         if(input.length != this.INPUT_SIZE) return null;
         this.output[0] = input;
         for(int layer = 1; layer < NETWORK_SIZE; layer ++) {
@@ -63,6 +65,7 @@ public class Network{
                 for(int prevNeuron = 0; prevNeuron < NETWORK_LAYER_SIZES[layer-1]; prevNeuron ++) {
                     sum += output[layer-1][prevNeuron] * weights[layer][neuron][prevNeuron];
                 }
+
                 output[layer][neuron] = relu(sum);
                 output_derivative[layer][neuron] = output[layer][neuron] * (1 - output[layer][neuron]);
             }
@@ -70,12 +73,20 @@ public class Network{
         return output[NETWORK_SIZE-1];
     }
 
+
+    private void train(double[] input, double[] target, double eta) {
+        if(input.length != INPUT_SIZE || target.length != OUTPUT_SIZE) return;
+        calculate(input);
+        backpropagation(target);
+        updateWeights(eta);
+    }
+
     public void train(TrainSet set, int loops, int batch_size) {
         if(set.INPUT_SIZE != INPUT_SIZE || set.OUTPUT_SIZE != OUTPUT_SIZE) return;
         for(int i = 0; i < loops; i++) {
             TrainSet batch = set.extractBatch(batch_size);
             for(int b = 0; b < batch_size; b++) {
-                this.train(batch.getInput(b), batch.getOutput(b), 0.3);
+                this.train(batch.getInput(b), batch.getOutput(b), 0.000000001);
             }
             System.out.println(MSE(batch));
         }
@@ -97,13 +108,6 @@ public class Network{
             v += MSE(set.getInput(i), set.getOutput(i));
         }
         return v / set.size();
-    }
-
-    private void train(double[] input, double[] target, double eta) {
-        if(input.length != INPUT_SIZE || target.length != OUTPUT_SIZE) return;
-        calculate(input);
-        backpropagation(target);
-        updateWeights(eta);
     }
 
     private void backpropagation(double[] target) {
@@ -142,39 +146,34 @@ public class Network{
 
     public static void main(String[] args){
 
-        Network network = new Network(3, 5, 3, 1);
+        Network network = new Network(3, 5, 3, 2, 1);
+
+        /*Network network = null;
+        try {
+            network = Network.loadNetwork("res/rainman.txt");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
 
         TrainSet set = new TrainSet(3, 1);
+        set.readCSV("res/2010notnoll.csv");
 
-        for(int i = 0; i < 8; i++) {
-            double[] a = new double[3];
-            double[] b = new double[1];
-            for(int k = 0; k < 3; k++) {
-                a[k] = (double)((int)(Math.random() * 10)) / (double)10;
-                if(k < 1) {
-                    b[k] = (double)((int)(Math.random() * 10)) / (double)10;
-                }
-            }
-            set.addData(a, b);
+        for(int i = 0; i < set.size(); i++) {
+            network.train(set.getInput(i), set.getOutput(i), 0.000000001);
         }
 
-        set.readCSV("res/data.csv");
+        //network.train(set, 5000, 50);
 
-        System.out.println(set.toString());
+        System.out.println("Result is: " + Arrays.toString(network.calculate(90, 996.0, 200+173)));
 
-        for(int size = 0; size < set.size(); size++) {
-            network.train(set.getInput(size), set.getOutput(size), 0.3);
-        }
-
-        network.train(set, 1000, 200);
-
-        System.out.println("Humidity: " + 90);
-        System.out.println("Air pressure: " + 990);
-        System.out.println("Temperature: " + 20);
-        System.out.println("Result is: " + Arrays.toString(network.calculate(70, 980, 50)));
+        System.out.println(Arrays.toString(network.output[0]));
+        System.out.println(Arrays.toString(network.output[1]));
+        System.out.println(Arrays.toString(network.output[2]));
+        System.out.println(Arrays.toString(network.output[3]));
+        System.out.println(Arrays.toString(network.output[4]));
 
         try {
-            network.saveNetwork("res/rainman.txt");
+            network.saveNetwork("res/rainman2.txt");
         } catch (Exception e) {
             e.printStackTrace();
         }

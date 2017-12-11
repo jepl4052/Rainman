@@ -107,7 +107,7 @@ public class TrainSet {
                 String[] measurement = line.split(splitter);
 
                 double[] input =
-                        {Double.parseDouble(measurement[3]), Double.parseDouble(measurement[4]), Double.parseDouble(measurement[5])};
+                        {Double.parseDouble(measurement[3]), Double.parseDouble(measurement[4]), kelvinize(Double.parseDouble(measurement[5]))};
                 double[] output = {Double.parseDouble(measurement[2])};
 
                 this.addData(input, output);
@@ -126,5 +126,9 @@ public class TrainSet {
                 }
             }
         }
+    }
+
+    private double kelvinize(double celsius) {
+        return celsius+173;
     }
 }
