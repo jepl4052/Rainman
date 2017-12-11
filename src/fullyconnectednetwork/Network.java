@@ -66,7 +66,7 @@ public class Network{
                     sum += output[layer-1][prevNeuron] * weights[layer][neuron][prevNeuron];
                 }
 
-                output[layer][neuron] = relu(sum);
+                output[layer][neuron] = sigmoid(sum);
                 output_derivative[layer][neuron] = output[layer][neuron] * (1 - output[layer][neuron]);
             }
         }
@@ -86,7 +86,7 @@ public class Network{
         for(int i = 0; i < loops; i++) {
             TrainSet batch = set.extractBatch(batch_size);
             for(int b = 0; b < batch_size; b++) {
-                this.train(batch.getInput(b), batch.getOutput(b), 0.000000001);
+                this.train(batch.getInput(b), batch.getOutput(b), 0.3);
             }
             System.out.println(MSE(batch));
         }
@@ -140,44 +140,64 @@ public class Network{
         }
     }
 
+    private double sigmoid(double x) {
+        return 1 / (1 + Math.exp(-x));
+    }
+
     private double relu(double x) {
         return max(x, 0.0);
     }
 
+    private double[] inputNormalization(double... input) {
+        if(input.length != this.INPUT_SIZE) return null;
+        return new double[]
+                {
+                        TrainSet.humidity(input[0]),
+                        TrainSet.airpressure(input[1]),
+                        TrainSet.temperature(input[2]),
+                        TrainSet.winddirection(input[3]),
+                        TrainSet.windspeed(input[4])
+                };
+    }
+
     public static void main(String[] args){
 
-        Network network = new Network(3, 5, 3, 2, 1);
+        Network network = new Network(5, 4, 3, 2, 1);
 
-        /*Network network = null;
-        try {
-            network = Network.loadNetwork("res/rainman.txt");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
+        TrainSet set = new TrainSet(5, 1);
+        set.readCSV("res/2010-wind.csv");
 
-        TrainSet set = new TrainSet(3, 1);
-        set.readCSV("res/2010notnoll.csv");
+         for(int x = 0; x < 10000; x++) {
 
-        for(int i = 0; i < set.size(); i++) {
-            network.train(set.getInput(i), set.getOutput(i), 0.000000001);
+            for (int i = 0; i < set.size(); i++) {
+                network.train(set.getInput(i), set.getOutput(i), 0.3);
+            }
+
         }
 
-        //network.train(set, 5000, 50);
+        //network.train(set, 1000, 5);
 
-        System.out.println("Result is: " + Arrays.toString(network.calculate(90, 996.0, 200+173)));
+        System.out.println();
+        System.out.println("Network output: ");
+        for(int i = 0; i < network.output.length; i++) {
+            System.out.println(Arrays.toString(network.output[i]));
+        }
 
-        System.out.println(Arrays.toString(network.output[0]));
-        System.out.println(Arrays.toString(network.output[1]));
-        System.out.println(Arrays.toString(network.output[2]));
-        System.out.println(Arrays.toString(network.output[3]));
-        System.out.println(Arrays.toString(network.output[4]));
+        double[] output = network.calculate(network.inputNormalization(98, 997.4, 0.7, 190, 4.3));
+
+        System.out.println("Result for highest measurement: " + Arrays.toString(output));
+        System.out.println("Reversed normalized output: " + (output[0]*3.3) + "\n");
+
+        output = network.calculate(network.inputNormalization(87, 1007.3, -6.3, 36, 2.1));
+
+        System.out.println("Result for low measurement: " + Arrays.toString(output));
+        System.out.println("Reversed normalized output: " + (output[0]*3.3) + "\n");
 
         try {
-            network.saveNetwork("res/rainman2.txt");
+            network.saveNetwork("res/rainman3.txt");
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void saveNetwork(String fileName) throws Exception {

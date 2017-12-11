@@ -107,8 +107,13 @@ public class TrainSet {
                 String[] measurement = line.split(splitter);
 
                 double[] input =
-                        {Double.parseDouble(measurement[3]), Double.parseDouble(measurement[4]), kelvinize(Double.parseDouble(measurement[5]))};
-                double[] output = {Double.parseDouble(measurement[2])};
+                        {humidity(Double.parseDouble(measurement[3])),
+                                airpressure(Double.parseDouble(measurement[4])),
+                                temperature(Double.parseDouble(measurement[5])),
+                                winddirection(Double.parseDouble(measurement[6])),
+                                windspeed(Double.parseDouble(measurement[8]))};
+
+                double[] output = {rainamount(Double.parseDouble(measurement[2]))};
 
                 this.addData(input, output);
             }
@@ -128,7 +133,31 @@ public class TrainSet {
         }
     }
 
-    private double kelvinize(double celsius) {
-        return celsius+173;
+    public static double humidity(double humidity) {
+        return humidity / 98.0;
+    }
+
+    public static double airpressure(double airp) {
+        return airp / 1042.9;
+    }
+
+    public static double temperature(double temp) {
+        return kelvinize(temp) / kelvinize(15.5);
+    }
+
+    public static double winddirection(double winddir) {
+        return winddir / 360;
+    }
+
+    public static double windspeed(double wind) {
+        return wind / 6.1;
+    }
+
+    public static double rainamount(double rain) {
+        return rain / 3.3;
+    }
+
+    public static double kelvinize(double celsius) {
+        return (celsius+173);
     }
 }
